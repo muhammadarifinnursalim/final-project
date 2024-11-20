@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokéAPI - Pokémon Cards</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .pokemon-card img {
+      max-height: 150px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">PokéAPI - Pokémon Cards</h1>
+    <div class="row" id="pokemon-container">
+      <!-- Cards will be dynamically inserted here -->
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Fetch data from PokéAPI
+    async function fetchPokemon() {
+      const container = document.getElementById('pokemon-container');
+      try {
+        // Fetch the first 10 Pokémon
+        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=100');
+        const data = await response.json();
+
+        // Loop through each Pokémon and fetch their details
+        for (const pokemon of data.results) {
+          const pokemonDetails = await fetch(pokemon.url).then(res => res.json());
+
+          // Create a card for each Pokémon
+          const card = document.createElement('div');
+          card.className = 'col-md-4 col-sm-6 mb-4';
+          card.innerHTML = `
+            <div class="card pokemon-card text-center">
+              <img src="${pokemonDetails.sprites.front_default}" class="card-img-top" alt="${pokemonDetails.name}">
+              <div class="card-body">
+                <h5 class="card-title text-capitalize">${pokemonDetails.name}</h5>
+                <p class="card-text">Height: ${pokemonDetails.height} | Weight: ${pokemonDetails.weight}</p>
+                <a href="${pokemon.url}" target="_blank" class="btn btn-primary btn-sm">More Details</a>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        }
+      } catch (error) {
+        console.error('Error fetching Pokémon:', error);
+        container.innerHTML = '<p class="text-danger">Failed to load Pokémon data. Please try again later.</p>';
+      }
+    }
+
+    // Call the function to fetch Pokémon data on page load
+    fetchPokemon();
+  </script>
+</body>
+</html>
